@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Zouhair - Tic Tac Toe vs Robot</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background-color: #f8f8f8;
+      margin-top: 50px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 48px;
+      background-color: #fff;
+      border: 2px solid #ccc;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .cell:hover {
+      background-color: #eef;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tic Tac Toe vs Robot</h1>
+  <div id="board"></div>
+  <div id="status">Turno: X (tu)</div>
+  <button onclick="resetGame()">Riavvia partita</button>
+
+  <script>
+    const boardEl = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+    let board = Array(9).fill("");
+    let gameOver = false;
+    const player = "X";
+    const robot = "O";
+
+    function createBoard() {
+      boardEl.innerHTML = "";
+      board.forEach((cell, i) => {
+        const cellEl = document.createElement("div");
+        cellEl.className = "cell";
+        cellEl.dataset.index = i;
+        cellEl.textContent = cell;
+        cellEl.onclick = () => handlePlayerMove(i);
+        boardEl.appendChild(cellEl);
+      });
+    }
+
+    function handlePlayerMove(index) {
+      if (gameOver || board[index] !== "") return;
+      board[index] = player;
+      updateBoard();
+      if (checkWin(player)) {
+        statusEl.textContent = "Hai vinto! 🎉";
+        gameOver = true;
+        return;
+      }
+      if (board.every(cell => cell !== "")) {
+        statusEl.textContent = "Pareggio!";
+        gameOver = true;
+        return;
+      }
+      statusEl.textContent = "Turno: O (robot)";
+      setTimeout(robotMove, 500);
+    }
+
+    function robotMove() {
+      if (gameOver) return;
+      const available = board
+        .map((cell, i) => (cell === "" ? i : null))
+        .filter(i => i !== null);
+      const choice = available[Math.floor(Math.random() * available.length)];
+      board[choice] = robot;
+      updateBoard();
+      if (checkWin(robot)) {
+        statusEl.textContent = "Il robot ha vinto! 🤖";
+        gameOver = true;
+        return;
+      }
+      if (board.every(cell => cell !== "")) {
+        statusEl.textContent = "Pareggio!";
+        gameOver = true;
+        return;
+      }
+      statusEl.textContent = "Turno: X (tu)";
+    }
+
+    function updateBoard() {
+      document.querySelectorAll(".cell").forEach((cellEl, i) => {
+        cellEl.textContent = board[i];
+      });
+    }
+
+    function checkWin(player) {
+      const wins = [
+        [0,1,2], [3,4,5], [6,7,8], // righe
+        [0,3,6], [1,4,7], [2,5,8], // colonne
+        [0,4,8], [2,4,6]           // diagonali
+      ];
+      return wins.some(combo => combo.every(i => board[i] === player));
+    }
+
+    function resetGame() {
+      board = Array(9).fill("");
+      gameOver = false;
+      statusEl.textContent = "Turno: X (tu)";
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
